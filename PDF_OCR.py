@@ -1,29 +1,27 @@
-import fitz  # PyMuPDF
+from pdf2image import convert_from_path
 import pytesseract
-from PIL import Image
-from io import BytesIO
+from docx import Document
 import os
 
 class PDF_OCR:
     def __init__(self, pdf_path, lang='eng'):
         self.pdf_path = pdf_path
-        self.lang = lang
+        self.lang = lang  # Set language for OCR
 
     def process_pdf(self):
-        doc = fitz.open(self.pdf_path)
-        all_text = []
+        # Convert PDF to images
+        pages = convert_from_path(self.pdf_path)
 
-        for page_num in range(doc.page_count):
-            page = doc.load_page(page_num)
-            pix = page.get_pixmap()  # Render page to image
-            img = Image.open(BytesIO(pix.tobytes()))  # Convert to PIL image
-            
-            # Run OCR on the image
-            text = pytesseract.image_to_string(img, lang=self.lang)
-            all_text.append(text)
-        
-        output_path = "output_text.txt"
-        with open(output_path, "w") as file:
-            file.write("\n\n".join(all_text))
-        
-        return output_path  # Return path to the output text file
+        # Create a new Word document
+        doc = Document()
+
+        # Perform OCR on each page and add text to the DOCX document
+        for page in pages:
+            text = pytesseract.image_to_string(page, lang=self.lang)
+            doc.add_paragraph(text)
+            doc.add_page_break()  # Add a page break after each page
+
+        # Save the DOCX file
+        output_path = self.pdf_path.replace('.pdf', '_output.docx')
+        doc.save(output_path)
+        return output_path
