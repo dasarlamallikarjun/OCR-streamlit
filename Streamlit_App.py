@@ -17,7 +17,7 @@ if uploaded_pdf is not None:
     language = st.radio("Language", ["English", "Telugu", "Hindi"])
 
     # Mapping user-friendly names to language codes
-    lang_code_map = {"English": "eng", "Telugu": "tel", "Hindi": "hin"}
+    lang_code_map = {"English": "en", "Telugu": "te", "Hindi": "hi"}
     selected_lang = lang_code_map.get(language)
 
     if st.button("Convert to DOCX"):

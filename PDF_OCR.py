@@ -1,33 +1,26 @@
 import fitz  # PyMuPDF
-import pytesseract
-from PIL import Image  # Import Pillow
+import easyocr
 from docx import Document
-import io
-import os
 
 class PDF_OCR:
-    def __init__(self, pdf_path, lang='eng'):
+    def __init__(self, pdf_path, lang='en'):
         self.pdf_path = pdf_path
-        self.lang = lang  # Set language for OCR
+        self.reader = easyocr.Reader([lang])  # Initialize EasyOCR with the selected language
 
     def process_pdf(self):
-        # Open PDF with PyMuPDF
-        pdf_document = fitz.open(self.pdf_path)
-        
         # Create a new Word document
         doc = Document()
 
-        # Process each page in the PDF
+        # Open the PDF file
+        pdf_document = fitz.open(self.pdf_path)
         for page_number in range(len(pdf_document)):
-            # Render page to an image
-            page = pdf_document.load_page(page_number)
-            pix = page.get_pixmap()
+            page = pdf_document.load_page(page_number)  # Load page
+            pix = page.get_pixmap()  # Render page to image
+            img = pix.tobytes("png")  # Convert to PNG bytes
             
-            # Convert Pixmap to Pillow image
-            image = Image.open(io.BytesIO(pix.tobytes("png")))
-
-            # Perform OCR on the image
-            text = pytesseract.image_to_string(image, lang=self.lang)
+            # Perform OCR using EasyOCR
+            result = self.reader.readtext(img, detail=0)  # Get text without bounding box info
+            text = "\n".join(result)  # Join lines of text
             doc.add_paragraph(text)
             doc.add_page_break()  # Add a page break after each page
 
