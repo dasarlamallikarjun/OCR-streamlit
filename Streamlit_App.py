@@ -1,15 +1,6 @@
-import os
 import streamlit as st
 from PDF_OCR import PDF_OCR
-
-# Attempt to install Tesseract at runtime
-try:
-    if not os.path.isfile('/usr/bin/tesseract'):
-        os.system("apt-get update")
-        os.system("apt-get install -y tesseract-ocr")
-    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
-except Exception as e:
-    st.error(f"Tesseract installation failed: {e}")
+import os
 
 # App title
 st.title("PDF to DOCX OCR Converter")
